@@ -52,6 +52,6 @@ def obtener_dato_de_prueba(pregunta):
     return extraer_texto(datos)
 
 try:
-    print(obtener_dato_de_prueba("Confirma en una frase corta que esta conexión funciona"))
+    print(obtener_dato_de_prueba("Confirma en una frase corta que esta conexión funciona!"))
 except (ValueError, RuntimeError) as error:
     print("No se pudo completar la operación: ", error)

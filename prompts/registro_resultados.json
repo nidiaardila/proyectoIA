@@ -1,9 +1,13 @@
 {
-  "estimar_respuesta_y_tiempo": {
+  "clasificar_consulta_rrhh": {
     "exitos": 3,
     "intentos": 3
   },
-  "extraer_entidades": {
+  "extraer_datos_solicitud": {
+    "exitos": 3,
+    "intentos": 3
+  },
+  "generar_respuesta_asistente": {
     "exitos": 3,
     "intentos": 3
   }

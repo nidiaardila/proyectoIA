@@ -1,10 +1,6 @@
 import json
 import time
 
-# import sys
-# from pathlib import Path
-# sys.path.append(str(Path(__file__).resolve().parent.parent))
-
 from prompts.banco import BANCO_DE_PROMPT
 from src.consumir_gemini import armar_peticion, enviar_peticion, extraer_texto, parsear_respuesta_json
 

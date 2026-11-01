@@ -1,4 +1,4 @@
-from pipeline_limpieza import *
+from .pipeline_limpieza import *
 
 referencia = "El perro persiguió al gato."
 respuesta = "El gato persiguió al perro."

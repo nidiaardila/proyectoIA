@@ -1,73 +1,98 @@
 import os
-import requests 
+import requests
 from dotenv import load_dotenv
+
 import time
+
 import json
 import re
 
-
 load_dotenv()
 
-API_KEY = os.getenv("GEMINI_API_KEY")
+#Constantes
 MODELO = "gemini-3.6-flash"
 URL_BASE = "https://generativelanguage.googleapis.com/v1beta/models/"
-  
-#def armar_peticion(pregunta): #pregunta = "Confirma la conexion"
-def armar_peticion( modelo, pregunta, system_instruction, response_schema=None): #pregunta = "Confirma la conexion"
+API_KEY = os.getenv("GEMINI_API_KEY")
+
+#función para crear la solicitud
+def armar_peticion(modelo, pregunta, system_instruction="", response_schema=None): #pregunta = "Confirma la conexion"
     if not pregunta:
         raise ValueError("La pregunta no puede estar vacía")
-    url = f"{URL_BASE}{modelo}:generateContent?key={API_KEY}"
-
+    url = f"{URL_BASE}{modelo}:generateContent?key={API_KEY}" #url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=MI API KEY"
     body = {
-        "systemInstruction": {
-            "parts": [ {"text": system_instruction} ]
-        },
-        "contents": 
-            [{"parts": [{"text": pregunta}]}]
-    }
+            "systemInstruction": {
+                "parts": [ {"text": system_instruction} ]
+            },
+            "contents": 
+                [{"parts": [{"text": pregunta}]}]
+        }
     
     if response_schema is not None:
         body["generationConfig"] = {
             "responseMimeType": "application/json",
             "responseSchema": response_schema
-            }
-    return url, body
-  
+        }
 
+
+    return url, body
+
+#armar_peticion_openai -> url, body
+
+#función envía la petición
 def enviar_peticion(url, body):
     try:
-        respuesta = requests.post(url, json=body, timeout=30)
-    except requests.exceptions.ConnectionError:
-        raise RuntimeError("No se pudo conectar con el servicio. Intenta de nuevo en unos momentos.")
-    except requests.exceptions.Timeout:
-        raise RuntimeError("Se agotó el tiempo. Intenta de nuevo en unos momentos.")
+        respuesta = requests.post(
+            url,
+            json=body,
+            timeout=30
+        )
+
+    except requests.exceptions.Timeout as error:
+        raise TimeoutError(
+            "Se agotó el tiempo de espera del proveedor."
+        ) from error
+
+    except requests.exceptions.ConnectionError as error:
+        raise RuntimeError(
+            "No se pudo conectar con el servicio."
+        ) from error
 
     if respuesta.status_code in(401, 403):
         raise ValueError("Credencial inválida o sin permiso. Revisa tu GEMINI_API_KEY")
     if respuesta.status_code >= 500:
         raise TimeoutError("El proveedor no pudo procesar la petición. Hay que esperar y reintentar")
     if respuesta.status_code == 429:
+        try:
+            detalle = respuesta.json()["error"]["message"]
+        except (ValueError, KeyError, TypeError):
+            detalle = "El proveedor informó un límite de uso."
+
+        if not isinstance(detalle, str) or not detalle.strip():
+            detalle = "El proveedor informó un límite de uso."
+
         segundos = respuesta.headers.get("Retry-After")
-        mensaje = f"Límite excedido. Reintentar en {segundos}s." if segundos else "Límite excedido."
-        raise TimeoutError(mensaje)
+
+        if segundos:
+            detalle += f" Reintentar después de {segundos} segundos."
+
+        raise TimeoutError(f"HTTP 429: {detalle}")
         
     if respuesta.status_code != 200:
         raise RuntimeError(f"Error en la petición. Status Code: {respuesta.status_code}")
-
     try:
         return respuesta.json()
     except requests.exceptions.JSONDecodeError:
         raise RuntimeError("La respuesta del servicio no llegó en el formato esperado.")
-  
 
-def extraer_texto(datos):
+#funcion procesa y extrae dato
+def extraer_texto(datos): #Gemini
     try:
         return datos["candidates"][0]["content"]["parts"][0]["text"]
     except (KeyError, IndexError):
         raise RuntimeError("La respuesta no recibe el texto generado en el lugar definido.")
-        
-  
-def obtener_dato_de_prueba(pregunta): 
+
+def obtener_dato_de_prueba(pregunta): #pregunta = "Confirma la conexion"
+
     response_schema = {
         "type": "OBJECT",
         "properties": {
@@ -78,9 +103,10 @@ def obtener_dato_de_prueba(pregunta):
     }
 
     system_instruction = "Eres un asistente amigable y respondes en máximo 2 palabras."
-    url, body = armar_peticion("gemini-3.6-flash", pregunta, system_instruction,  response_schema) #obtiene url y body
-    
-    inicio = time.perf_counter() #Empezar el contador    
+    url, body = armar_peticion("gemini-3.5-flash-lite", pregunta, system_instruction, response_schema) #obtiene url y body
+
+    inicio = time.perf_counter() #Empezar el contador
+
     #url = resultado de armar_peticion
     #body = resultado de armar_peticion
     datos = enviar_peticion(url, body)
@@ -91,7 +117,6 @@ def obtener_dato_de_prueba(pregunta):
 
     costo = calcular_costo(datos, 0.00000075, 0.00000375)
     print(f"Costo de la petición: ${costo:.6f} USD")
-
     texto = extraer_texto(datos)
     datos_formateados = parsear_respuesta_json(texto, ["categoria", "nivel"])
     return datos_formateados
@@ -117,10 +142,9 @@ def calcular_costo(datos, precio_entrada, precio_salida):
     '''
     tokens_entrada = uso["promptTokenCount"]
     tokens_salida = uso["candidatesTokenCount"]
-    tokens_razonamiento = uso["thoughtsTokenCount"] #revisar si existe o no, si no existe colocarlo como 0
+    tokens_razonamiento = uso.get("thoughtsTokenCount", 0) #revisar si existe o no, si no existe colocarlo como 0
     costo = (tokens_entrada * precio_entrada) + ( (tokens_salida + tokens_razonamiento) * precio_salida )
     return costo
-
 
 def parsear_respuesta_json(texto, claves_requeridas=None):
     """
@@ -142,10 +166,10 @@ def parsear_respuesta_json(texto, claves_requeridas=None):
 
 if __name__ == "__main__": #Solamente ejecútalo si el archivo en el que estoy está siendo directamente ejecutado. NO LO EJECUTA EN IMPORTS
     try:
-        print(obtener_dato_de_prueba("Confirma en una frase corta que esta conexión funciona"))
-    except (ValueError, RuntimeError) as error:
+        for i in range(2):
+            print(obtener_dato_de_prueba("Confirma en una frase corta que esta conexión funciona"))
+    except (ValueError, RuntimeError, TimeoutError) as error:
         print("No se pudo completar la operación: ", error)
-
 
 '''
 Ejecute 4 veces la MISMA petición con 1 modelo

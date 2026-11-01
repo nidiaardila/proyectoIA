@@ -1,4 +1,4 @@
-import consumir_gemini
+from . import consumir_gemini
 import time
 
 def evaluar_modelo(nombre_modelo, pregunta, precio_entrada, precio_salida, repeticiones=4):
@@ -18,7 +18,7 @@ def evaluar_modelo(nombre_modelo, pregunta, precio_entrada, precio_salida, repet
         print(f"\n--- Intento {i} de {repeticiones} ({nombre_modelo}) ---")
         
         # 1. Armar petición (puedes pasar el modelo si tu función lo requiere)
-        url, body = consumir_gemini.armar_peticion(pregunta, nombre_modelo) 
+        url, body = consumir_gemini.armar_peticion( nombre_modelo, pregunta) 
 
         # 2. Medir latencia
         inicio = time.perf_counter()
@@ -39,7 +39,8 @@ def evaluar_modelo(nombre_modelo, pregunta, precio_entrada, precio_salida, repet
         print(f"Latencia:  {latencia:.2f} segundos")
         print(f"Costo:     ${costo:.6f} USD")
         print(f"Respuesta: {respuesta}")
-
+        time.sleep(2)
+       
     # Resumen acumulado del modelo
     latencia_promedio = sum(latencias) / len(latencias)
     costo_total = sum(costos)
@@ -53,13 +54,13 @@ def evaluar_modelo(nombre_modelo, pregunta, precio_entrada, precio_salida, repet
 
 pregunta_prueba = "Confirma la conexion"
 modelos = [
+    # {
+    #     "nombre": "gemini-3.6-flash",
+    #     "precio_entrada": 0.00000010,
+    #     "precio_salida": 0.00000030
+    # },
     {
-        "nombre": "gemini-3.6-flash",
-        "precio_entrada": 0.00000010,
-        "precio_salida": 0.00000030
-    },
-    {
-        "nombre": "gemini-3.5-flash",
+        "nombre": "gemini-3.5-flash-lite",
         "precio_entrada": 0.00000075,
         "precio_salida": 0.00000375
     }

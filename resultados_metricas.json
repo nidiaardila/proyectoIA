@@ -1,23 +1,162 @@
 [
   {
-    "consulta": "¿Qué es una lista en Python?",
-    "respuesta": "Es una estructura de datos ordenada y mutable que permite almacenar diversos elementos.",
-    "precision": 0.3076923076923077,
+    "consulta": "¿Cómo solicito un adelanto de sueldo?",
+    "referencia": "Los anticipos se solicitan en el portal interno entre los días diez y quince.",
+    "respuesta": "Presenta una solicitud formal por escrito al departamento de Recursos Humanos.",
+    "precision": 0.0,
+    "cobertura": 0.0,
+    "f1": 0.0
+  },
+  {
+    "consulta": "¿El uniforme de trabajo tiene algún costo?",
+    "referencia": "La empresa entrega los uniformes y elementos de protección sin ningún costo.",
+    "respuesta": "El uniforme de trabajo es totalmente gratuito para todos nuestros colaboradores.",
+    "precision": 0.0909,
+    "cobertura": 0.0833,
+    "f1": 0.087
+  },
+  {
+    "consulta": "¿Se pueden acumular períodos de vacaciones?",
+    "referencia": "Se pueden acumular legalmente hasta dos períodos consecutivos con autorización previa.",
+    "respuesta": "Sí, es posible acumular vacaciones según lo acuerdes con la empresa y la ley local.",
+    "precision": 0.1333,
+    "cobertura": 0.1818,
+    "f1": 0.1538
+  },
+  {
+    "consulta": "¿El permiso por mudanza es remunerado?",
+    "referencia": "El trabajador dispone de un día hábil pagado por cambio de domicilio.",
+    "respuesta": "Sí, el permiso por mudanza es remunerado según lo establezca tu convenio colectivo.",
+    "precision": 0.1538,
+    "cobertura": 0.1667,
+    "f1": 0.16
+  },
+  {
+    "consulta": "¿Dónde descargo mi liquidación de sueldo?",
+    "referencia": "Las liquidaciones mensuales se descargan directamente en el portal de autoservicio de personal.",
+    "respuesta": "Puedes descargar tu liquidación de sueldo ingresando al portal del empleado en nuestra intranet.",
+    "precision": 0.2143,
+    "cobertura": 0.2308,
+    "f1": 0.2222
+  },
+  {
+    "consulta": "¿Qué seguro complementario tiene la empresa?",
+    "referencia": "La empresa cuenta con un seguro complementario de salud financiado de manera compartida.",
+    "respuesta": "El seguro complementario cubre gastos médicos, dentales y de vida para todos los colaboradores.",
+    "precision": 0.2143,
+    "cobertura": 0.2308,
+    "f1": 0.2222
+  },
+  {
+    "consulta": "¿Cuántos días de permiso corresponden por duelo de un padre?",
+    "referencia": "Corresponden cuatro días hábiles continuos por fallecimiento de padre o madre.",
+    "respuesta": "Corresponden entre 2 y 4 días hábiles, según el convenio y la normativa vigente.",
+    "precision": 0.2143,
+    "cobertura": 0.2727,
+    "f1": 0.24
+  },
+  {
+    "consulta": "¿Qué beneficio existe para el nacimiento de un hijo?",
+    "referencia": "El padre tiene derecho a cinco días de permiso laboral pagado.",
+    "respuesta": "Existe el permiso de paternidad remunerado y el subsidio familiar por nacimiento.",
+    "precision": 0.25,
+    "cobertura": 0.2727,
+    "f1": 0.2609
+  },
+  {
+    "consulta": "¿Hasta qué hora puedo avisar una ausencia imprevista?",
+    "referencia": "Debes avisar a tu jefatura directa antes de las diez de la mañana.",
+    "respuesta": "Debe avisar de su ausencia imprevisto al menos una hora antes de su turno.",
+    "precision": 0.2857,
+    "cobertura": 0.3077,
+    "f1": 0.2963
+  },
+  {
+    "consulta": "¿Dónde reviso los convenios corporativos vigentes?",
+    "referencia": "Los convenios y descuentos comerciales están listados en la pestaña beneficios de intranet.",
+    "respuesta": "Consulta la sección de beneficios en el portal interno de Recursos Humanos.",
+    "precision": 0.3333,
+    "cobertura": 0.3077,
+    "f1": 0.32
+  },
+  {
+    "consulta": "¿Qué canal uso para denunciar acoso laboral?",
+    "referencia": "Las denuncias se ingresan confidencialmente mediante el canal ético de la intranet.",
+    "respuesta": "Utilice el canal de denuncias interno, confidencial y oficial de su empresa.",
+    "precision": 0.3333,
+    "cobertura": 0.3333,
+    "f1": 0.3333
+  },
+  {
+    "consulta": "¿Qué plazo tengo para entregar una licencia médica?",
+    "referencia": "El trabajador tiene un plazo de dos días hábiles para presentarla.",
+    "respuesta": "Debe entregarla dentro de los dos días hábiles desde su emisión.",
+    "precision": 0.3636,
+    "cobertura": 0.3636,
+    "f1": 0.3636
+  },
+  {
+    "consulta": "¿Cómo reembolso un gasto de salud dental?",
+    "referencia": "Ingresa al portal de beneficios y adjunta la boleta del gasto médico.",
+    "respuesta": "Presenta la factura y el formulario correspondiente en el portal de beneficios de la empresa.",
+    "precision": 0.3333,
+    "cobertura": 0.4167,
+    "f1": 0.3704
+  },
+  {
+    "consulta": "¿Cómo solicito el permiso por día de cumpleaños?",
+    "referencia": "El día libre de cumpleaños se solicita con una semana de anticipación.",
+    "respuesta": "Envía una solicitud formal por el portal de empleados con cinco días de anticipación.",
+    "precision": 0.4286,
     "cobertura": 0.5,
-    "f1": 0.380952380952381
+    "f1": 0.4615
   },
   {
-    "consulta": "¿Cuándo se creó Python?",
-    "respuesta": "Python fue creado por Guido van Rossum y lanzado al público en 1991.",
-    "precision": 0.38461538461538464,
-    "cobertura": 1.0,
-    "f1": 0.5555555555555556
-  },
-  {
-    "consulta": "¿Qué es Python?",
-    "respuesta": "Python es un lenguaje de programación interpretado, de alto nivel y de propósito general.",
+    "consulta": "¿A quién solicito constancia de antigüedad laboral?",
+    "referencia": "El certificado de antigüedad se solicita al correo del departamento de personas.",
+    "respuesta": "Solicita la constancia de antigüedad laboral directamente al departamento de Recursos Humanos.",
     "precision": 0.5,
-    "cobertura": 1.0,
-    "f1": 0.6666666666666666
+    "cobertura": 0.5,
+    "f1": 0.5
+  },
+  {
+    "consulta": "¿Dónde consulto el reglamento interno?",
+    "referencia": "El reglamento interno está publicado para libre consulta en la intranet corporativa.",
+    "respuesta": "Puedes consultar el reglamento interno en la intranet de la empresa.",
+    "precision": 0.5455,
+    "cobertura": 0.5,
+    "f1": 0.5217
+  },
+  {
+    "consulta": "¿Cuántos días corresponden por permiso de matrimonio?",
+    "referencia": "Corresponden cinco días hábiles continuos de permiso pagado por matrimonio civil.",
+    "respuesta": "Corresponden 15 días naturales de permiso retribuido por matrimonio en España.",
+    "precision": 0.5455,
+    "cobertura": 0.5455,
+    "f1": 0.5455
+  },
+  {
+    "consulta": "¿Cuántos días de vacaciones legales corresponden al año?",
+    "referencia": "Corresponden quince días hábiles de vacaciones remuneradas por cada año trabajado.",
+    "respuesta": "Por ley, corresponden 15 días hábiles de vacaciones anuales tras un año de servicio.",
+    "precision": 0.5,
+    "cobertura": 0.6364,
+    "f1": 0.56
+  },
+  {
+    "consulta": "¿Cuál es la jornada ordinaria máxima de trabajo semanal?",
+    "referencia": "La jornada máxima ordinaria de trabajo es de cuarenta y cuatro horas semanales.",
+    "respuesta": "La jornada ordinaria máxima es de 40 horas semanales.",
+    "precision": 0.8889,
+    "cobertura": 0.6154,
+    "f1": 0.7273
+  },
+  {
+    "consulta": "¿Cuándo se pagan los sueldos en la empresa?",
+    "referencia": "Los sueldos se transfieren el último día hábil de cada mes.",
+    "respuesta": "Los sueldos se pagan el último día hábil de cada mes.",
+    "precision": 0.9091,
+    "cobertura": 0.9091,
+    "f1": 0.9091
   }
 ]

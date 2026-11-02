@@ -4,7 +4,8 @@ from typing import Callable, Any
 
 from .consumir_gemini import armar_peticion, extraer_texto, enviar_peticion
 
-MODELO = "gemini-3.6-flash"
+# MODELO = "gemini-3.6-flash"
+MODELO = "gemini-3.5-flash-lite"
 
 def con_reintento(
     funcion: Callable[[], Any], 

@@ -13,20 +13,16 @@ plantilla_clasificacion = PromptTemplate.from_template(
     "pregunta, queja o sugerencia. Responde solo con esa palabra. \n\n {mensaje}"
 )
 
-paso_clasificacion = (
-    plantilla_clasificacion
-    | modelo
-    | StrOutputParser()
-    | (lambda texto: texto.strip().lower())
-)
+# Función constructora: permite inyectar un modelo falso (MagicMock) en los tests
+def construir_paso_clasificacion(modelo_a_usar=modelo):
+    return (
+        plantilla_clasificacion
+        | modelo_a_usar
+        | StrOutputParser()
+        | (lambda texto: texto.strip().lower())
+    )
+paso_clasificacion = construir_paso_clasificacion(modelo)
 
-# mensaje_prueba = "Dame el nombre de tu creador."
-
-# clasificacion = paso_clasificacion.invoke(
-#     {"mensaje": mensaje_prueba}
-# )
-
-# print(clasificacion)
 
 cadena_pregunta = (
     PromptTemplate.from_template("Responde esta pregunta técnica con precisión: \n\n {mensaje}")
@@ -46,48 +42,47 @@ cadena_sugerencia = (
     | StrOutputParser()
 )
 
-#Sintaxis RunnableBranch
-# caminos = RunnableBranch(
-#     (condicion_1, rama_1), #if
-#     (condicion_2, rama_2), #elif
-#     (condicion_3, rama_3), #elif
-#     rama_por_defecto #else
-# ) #Cada condicion debe ser una función; suele ser un lambda
-
-
-#x = {"clasificacion": "queja", "mensaje": "Mi teléfono no funciona"}
-bifurcacion = RunnableBranch(
-    (lambda x: x["clasificacion"] == "queja", cadena_queja), #if x["clasificacion"] == "queja": cadena_queja
-    (lambda x: x["clasificacion"] == "sugerencia", cadena_sugerencia), #elif x["clasificacion"] == "sugerencia": cadena_sugerencia
-    cadena_pregunta #else: cadena_pregunta
-)
-
-cadena_con_enrutamiento = (
-    RunnablePassthrough.assign(clasificacion=paso_clasificacion) #{"mensaje": "Deberían de tener más agentes disponibles.", "clasificacion":resultado de paso_clasificacion}
-    | bifurcacion
-)
-
-# resultado = cadena_con_enrutamiento.invoke(
-#     {"mensaje": "Deberían de tener más agentes disponibles."}
 #Fallback: cadena de respaldo. Captura las caídas de mi LLM (RateLimitError, 401, APIConnectionError, respuestas vacías)
-
 respuesta_generica = RunnableLambda(
-    #Todo: log
     lambda x: (
-        "Gracias por tu mensaje. Un miembro de nuestro equipo te va a responder pronto."
+        "Gracias por tu mensaje. Un miembro de nuestro "
+        "equipo te va a responder pronto."
     )
 )
 
-# print(resultado)
+# Función constructora: envuelve cadena_queja con fallback para proteger la ruta y probarla con mocks
+def construir_cadena_queja_segura(cadena_queja=cadena_queja):
+    return cadena_queja.with_fallbacks([respuesta_generica])
+cadena_queja_segura = construir_cadena_queja_segura(cadena_queja)
 
+# Función constructora: arma la bifurcación (RunnableBranch) y la cadena completa con enrutamiento
+def construir_cadena_con_enrutamiento(
+    paso_clasificacion=paso_clasificacion,
+    cadena_queja=cadena_queja_segura,
+    cadena_sugerencia=cadena_sugerencia,
+    cadena_pregunta=cadena_pregunta,
+):
+    bifurcacion = RunnableBranch(
+        (lambda x: x["clasificacion"] == "queja", cadena_queja),           # if clasificacion == "queja"
+        (lambda x: x["clasificacion"] == "sugerencia", cadena_sugerencia), # elif clasificacion == "sugerencia"
+        cadena_pregunta                                                    # else (ruta por defecto)
+    )
+    return (
+        RunnablePassthrough.assign(clasificacion=paso_clasificacion)
+        | bifurcacion
+    )
+cadena_con_enrutamiento = construir_cadena_con_enrutamiento()
 cadena_robusta = cadena_con_enrutamiento.with_fallbacks([respuesta_generica])
 
+
+# Red de seguridad final: captura cualquier error no cubierto en clasificación y lo registra
 def procesar_mensaje_seguro(cadena, mensaje):
     try:
         return cadena.invoke({"mensaje": mensaje})
     except Exception as error:
-        #Todo: log
-        return "No pudimos procesar tu mensaje en este momento. Intenta de nuevo más tarde"
+        print(f"Error procesando mensaje: {error}")
+        return "No pudimos procesar tu mensaje en este momento. Intenta de nuevo más tarde."
+    
 
 if __name__ == "__main__": #Solamente ejecuta el siguiente bloque de código si la ejecución es directa del archivo. NO EJECUTES si es import
     mensaje = "Llevo varios días sin poder entrar a mi cuenta."

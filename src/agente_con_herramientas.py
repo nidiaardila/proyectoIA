@@ -50,9 +50,9 @@ herramientas = [buscar_en_documentacion, calcular] #Lista de Herramientas
 
 #Plantilla, con system_instructions
 prompt_agente = ChatPromptTemplate.from_messages([
-    (
-        "system", "Eres un asistente que responde preguntas usando las herramintas disponibles cuando las necesites."
-    ),
+    # (
+    #     "system", "Eres un asistente que responde preguntas usando las herramientas disponibles cuando las necesites."
+    # ),
     (
         "human", "{entrada}"
     ),
@@ -72,6 +72,8 @@ ejecutor_agente = AgentExecutor(
 )
 
 resultado = ejecutor_agente.invoke(
-    {"entrada": "¿Cuánto es 340+215?"}
-)
+    {"entrada": "¿Qué es LangChain?"}
+    )
+
+print("Respuesta Final:", resultado["output"][0]["text"])
 

@@ -21,19 +21,17 @@ import json
 
 #=== Configuraciones e Inicializaciones===
 load_dotenv()
-modelo = ChatGoogleGenerativeAI(model="gemini-3.6-flash")
+modelo = ChatGoogleGenerativeAI(model="gemini-3.6-flash") 
 
 #=== Persistencia y Análisis de Trazabilidad ===
 def registrar_traza(session_id: str, entrada: str, resultado: dict) -> None:
-    """resultado = {"intermediate_steps": [
-        {
-        "AgentAction": {
-                "tool": x,
-                "tool_input": argumentos   
-            },
-        "str_observation": respuesta de la herramienta
-        },
-    ]}
+    """Guarda una interacción del agente como una
+    línea JSON en trazas_agente.jsonl: qué se
+    preguntó, qué herramientas se usaron y con qué
+    argumentos, y la respuesta final. Si "resultado"
+    no trae "intermediate_steps" (por ejemplo, con
+    return_intermediate_steps=False), acciones queda
+    como una lista vacía en vez de fallar.
     """
     registro = {
         "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -52,6 +50,42 @@ def registrar_traza(session_id: str, entrada: str, resultado: dict) -> None:
 
     with open("trazas_agente.jsonl", "a", encoding="utf-8") as archivo:
         archivo.write(json.dumps(registro, ensure_ascii=False) + "\n")
+
+
+def marcar_repeticiones_sospechosas(
+    archivo: str = "trazas_agente.jsonl",
+) -> None:
+    """Recorre un archivo de trazas y marca las
+    sesiones donde la misma herramienta se invocó
+    varias veces seguidas: un candidato a revisar a
+    mano, no una conclusión definitiva."""
+    try:
+        with open(archivo, encoding="utf-8") as f:
+            registros = [
+                json.loads(linea) for linea in f if linea.strip()
+            ]
+    except FileNotFoundError:
+        print(
+            f"No se encontró '{archivo}'. Corre "
+            "registrar_traza al menos una vez antes "
+            "de revisar repeticiones."
+        )
+        return
+
+    for registro in registros:
+        herramientas_usadas = [
+            a["herramienta"]
+            for a in registro.get("acciones", [])
+        ]
+
+        for i in range(1, len(herramientas_usadas)):
+            if herramientas_usadas[i] == herramientas_usadas[i - 1]:
+                print(
+                    f"Revisar: {registro['session_id']} usó "
+                    f"'{herramientas_usadas[i]}' dos veces seguidas"
+                )
+                break
+
 
 #=== Auditoría/Human in the Loop ===
 registro_aprobaciones = []
@@ -124,13 +158,6 @@ def consultar_estado_envio_detallado(numero_seguimiento: str, incluir_historial:
     Consulta el estado de un envío, con la opción de incluir el historial completo.
     """
     envio = ESTADOS.get(numero_seguimiento) #AR12346
-    #envio = {
-    #     "actual": "Entregado",
-    #     "historial": [
-    #         "Recibido en depósito",
-    #         "En tránsito"
-    #     ]
-    # }
     if envio is None:
         return f"No se encontró un envío con el número {numero_seguimiento}."
     
@@ -154,7 +181,7 @@ def generar_reembolso(numero_pedido: str, monto: float) -> str:
     """
     Generar un reembolso económico para un pedido. Acción irreversible: requiere aprobación humana antes de ejecutarse.
     """
-    mensaje = f"[SUPERVISIÓN HUMARA REQUERIDA] El usuario solicita reembolsar ${monto} para el pedido {numero_pedido}. ¿Desea aprobar? (s/n): "
+    mensaje = f"[SUPERVISIÓN HUMANA REQUERIDA] El usuario solicita reembolsar ${monto} para el pedido {numero_pedido}. ¿Desea aprobar? (s/n): "
 
     #Congelar el proceso, hasta que el supervisor de el visto bueno
     aprobado = esperar_aprobacion(mensaje, tiempo_limite_segundos=15)
@@ -177,13 +204,7 @@ herramientas = [consultar_estado_envio_detallado, calcular_costo_envio, generar_
 
 #=== Gestión de historial en memoria ===
 historiales = {}
-"""
-historiales = {
-    'cliente_123': {MENSAJES},
-    'cliente_345': {MENSAJES},
-    'cliente_567': {"Cuánto me cuesta x y y?"}
-}
-"""
+
 def obtener_historial(session_id: str): #cliente_567
     if session_id not in historiales:
         historiales[session_id] = InMemoryChatMessageHistory()
@@ -227,61 +248,33 @@ agente_con_memoria = RunnableWithMessageHistory(
 
 #=== Ejecución ===
 if __name__ == "__main__":
-    # resultado = ejecutor_agente.invoke(
-    #     {"entrada": "¿Cuál es el estado del envío AR12345, con su historial?"}
-    # )
-
-    #print("Respuesta: ", resultado["output"][0]["text"])
-    
-    # config1 = {"configurable": {"session_id": "cliente_456"}}
-    # resultado1 = agente_con_memoria.invoke(
-    #     {"entrada": "¿Cuál es el estado del envío AR12345, con su historial?"},
-    #     config1
-    # )
-
-    # print("Turno 1: ", resultado1["output"])
-
-    # resultado2 = agente_con_memoria.invoke(
-    #     {"entrada": "¿Y ese mismo envío ya fue entregado?"},
-    #     config1
-    # )
-
-    # print("Turno 2: ", resultado2["output"])
-
-    # config2 = {"configurable": {"session_id": "cliente_567"}}
-    # resultado3 = agente_con_memoria.invoke(
-    #     {"entrada": "¿Cuánto cuesta enviar un paquete de 3kg a 300km"},
-    #     config2
-    # )
-
-    # print("Turno 3:", resultado3['output'])
-
-    # resultado4 = agente_con_memoria.invoke(
-    #     {"entrada": "¿Y cuánto costaría con el doble de peso?"},
-    #     config2
-    # )
-
-    # print("Turno 4:", resultado4['output'])
-
-    # config_reembolso = {"configurable": {"session_id": "cliente_123"}}
-    # resultado_reembolso = agente_con_memoria.invoke(
-    #     {"entrada": "Mi pedido PED123 llegó roto. Exijo un reembolso de mis 25000 pesos."},
-    #     config_reembolso
-    # )
-
-    # print("Resultado: ", resultado_reembolso)
-
-    # print("Registros de reembolsos:")
-    # for registro in registro_aprobaciones:
-    #     print(registro)
-
+    # 1. Prueba de herramienta de riesgo bajo (calcular_costo_envio)
     config_costo = {"configurable": {"session_id": "cliente_246"}}
-    entrada = "¿Cuánto me cuesta enviar un paquete de 2.5kg a 50km?"
+    entrada_costo = "¿Cuánto me cuesta enviar un paquete de 2.5kg a 50km?"
     resultado_costo = agente_con_memoria.invoke(
-        {"entrada": entrada},
+        {"entrada": entrada_costo},
         config_costo
     )
-
     print(resultado_costo["output"])
+    registrar_traza(
+        session_id=config_costo["configurable"]["session_id"],
+        entrada=entrada_costo,
+        resultado=resultado_costo
+    )
 
-    registrar_traza(session_id=config_costo["configurable"]["session_id"], entrada=entrada, resultado=resultado_costo)
+    # 2. Prueba de herramienta de riesgo alto (generar_reembolso)
+    config_reembolso = {"configurable": {"session_id": "cliente_123"}}
+    entrada_reembolso = "Mi pedido PED123 llegó roto. Solicito un reembolso de 25000 pesos."
+    resultado_reembolso = agente_con_memoria.invoke(
+        {"entrada": entrada_reembolso},
+        config_reembolso
+    )
+    print(resultado_reembolso["output"])
+    registrar_traza(
+        session_id=config_reembolso["configurable"]["session_id"],
+        entrada=entrada_reembolso,
+        resultado=resultado_reembolso
+    )
+
+    print("Registros de reembolsos:", registro_aprobaciones)
+    marcar_repeticiones_sospechosas()

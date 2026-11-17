@@ -248,4 +248,8 @@ if __name__ == "__main__":
     inspeccionar_chunks(vs)
 
     #consulta: "Cuáles son los errores de credenciales inválidas?"
-    #ids_relevantes = {"a4bc644f-ffa9-4219-94b2-5fd7cff518be"}
+   #ids_relevantes = {"a4bc644f-ffa9-4219-94b2-5fd7cff518be"}
+
+    #*****ADVERTENCIA***** Código para borrar todo mi vectorstore
+    # if os.path.exists(CARPETA_DB):
+    #     shutil.rmtree(CARPETA_DB)

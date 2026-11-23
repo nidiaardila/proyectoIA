@@ -22,9 +22,7 @@ Thumbs.db
 
 
 # base de datos
- chroma_db/
-
- credenciales.json
-
+chroma_db/
 
 credenciales.json
+vectorstore_ejemplo/

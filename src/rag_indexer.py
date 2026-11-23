@@ -225,12 +225,14 @@ if __name__ == "__main__":
     #     print(r.page_content)
 
     #Instalación adicional si queremos leer pdf, docs, etc
-    with open("manual_de_usuario.txt", "r", encoding="utf-8") as f: #r: read, a: append, w: write
+    with open("docs/reglamento_interno_rrhh.txt", "r", encoding="utf-8") as f:
         contenido = f.read()
 
-    documentos = [Document(page_content=contenido, metadata={"fuente": "manual_de_usuario.txt", "fecha": "2026-11-13"})]
+    documentos = [Document(page_content=contenido, metadata={"fuente": "docs/reglamento_interno_rrhh.txt", "fecha": "2026-11-23"})]
 
-    #indexar_corpus(documentos, CARPETA_DB, es_documento=True) #comentado para que no vuelvan a ingresar el manual de usuario en su vs
+    # indexar_corpus(documentos, CARPETA_DB, es_documento=True)
+    
+    # indexar_corpus(documentos, CARPETA_DB, es_documento=True) #comentado para que no vuelvan a ingresar el manual de usuario en su vs
 
     datos = vs.get()
     print("IDs almacenados: ", datos["ids"])

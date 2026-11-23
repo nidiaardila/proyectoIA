@@ -10,8 +10,9 @@ from rag_indexer import cargar_vectorstore, formatear_contexto
 load_dotenv()
 
 #Plantilla que me obligue a usar SOLO el contexto recuperado y también a citar [1], [2]
-PROMPT_TEMPLATE = """Responde la pregunta usando SOLO el contexto de abajo. Cita la \
-fuente de cada afirmacion con su numero entre corchetes, como [1]. Si el contexto no \
+PROMPT_TEMPLATE = """Eres el Asistente de Recursos Humanos y Politicas de Empresa. \
+Responde la pregunta usando SOLO el contexto de abajo. Cita el articulo correspondiente \
+y la fuente de cada afirmacion con su numero entre corchetes, como [1]. Si el contexto no \
 alcanza para responder, dilo explicitamente en vez de inventar.
 
 Contexto:
@@ -104,16 +105,16 @@ def registrar_consulta(vectorstore, pregunta: str, k: int = 3) -> dict:
         "k": k,
         "respuesta_generada": respuesta.content,
         "citas_disponibles": citas,
-        "tiempo_ms": {etapa: round(seg * 1000, 2) for etapa, seg in tiempos.items()},
+        "tiempos_ms": {etapa: round(seg * 1000, 2) for etapa, seg in tiempos.items()},
         "tiempo_total_ms": round(sum(tiempos.values()) * 1000, 2),
         "factor_crecimiento": f"{factor_crecimiento}x",
         "tokens": tokens_reales,
-        "costo_estimado_usd": f"{costo_usd:.6f}"
+        "costo_estimado_usd": f"{costo_usd:.6f}" if costo_usd is not None else None
     }
 
     return registro
 
-def guardar_registro_jsonl(registro: dict, ruta_archivo: str = "registro_latencia_costo_rag.jsonl"):
+def guardar_registro_jsonl(registro: dict, ruta_archivo: str = "registros_latencia_costo.jsonl"):
     """
     Guarda cada corrida/registro generado y lo agrega a un json
     """
@@ -122,12 +123,30 @@ def guardar_registro_jsonl(registro: dict, ruta_archivo: str = "registro_latenci
     
     print(f"Registro guardado en {ruta_archivo}")
 
+
 if __name__ == "__main__":
     CARPETA_DB = "vectorstore_ejemplo"
-    K = 3
+    ARCHIVO_SALIDA = "registros_latencia_costo.jsonl"
     vs = cargar_vectorstore(CARPETA_DB)
 
-    pregunta = "¿Cuántos intentos hace el cliente ante un TimeoutError y cuánto espera entre cada uno?"
+    pruebas = [
+        ("¿Cuántos días de vacaciones tengo al año y con cuánta anticipación debo solicitarlas?", 3),
+        ("¿Cuántos días de vacaciones tengo al año y con cuánta anticipación debo solicitarlas?", 6),
+        ("¿Cuál es el plazo para entregar una licencia médica y qué debo hacer si tengo un accidente de trayecto?", 3),
+        ("¿Cómo solicito el reembolso del seguro complementario de salud y qué documentos necesito?", 3),
+    ]
+
+    for pregunta, k in pruebas:
+        registro = registrar_consulta(vs, pregunta, k)
+        print(json.dumps(registro, indent=2, ensure_ascii=False))
+        guardar_registro_jsonl(registro, ARCHIVO_SALIDA)
+
+# if __name__ == "__main__":
+#     CARPETA_DB = "vectorstore_ejemplo"
+#     K = 3
+#     vs = cargar_vectorstore(CARPETA_DB)
+
+#     pregunta = "¿Cuántos intentos hace el cliente ante un TimeoutError y cuánto espera entre cada uno?"
 
     # tiempos = {}
     # with medir(tiempos, "embed_y_busqueda"):
@@ -143,11 +162,11 @@ if __name__ == "__main__":
 
     # print("Tiempos:", tiempos)
 
-    registro = registrar_consulta(vs, pregunta, K)
-    print(registro)
+    # registro = registrar_consulta(vs, pregunta, K)
+    # print(registro)
 
 
-    guardar_registro_jsonl(registro)
+    # guardar_registro_jsonl(registro)
 
     """
     #Flujo normal:

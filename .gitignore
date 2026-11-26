@@ -26,3 +26,6 @@ chroma_db/
 
 credenciales.json
 vectorstore_ejemplo/
+
+indice_gate2/
+rag_logs_gate2.jsonl

@@ -1,7 +1,8 @@
-Fecha: 2026-11-18
-Configuracion: k=3, chunk_size=200, chunk_overlap=30
+Fecha: 2026-11-26
+Configuracion: k=2, chunk_size=600, chunk_overlap=0
 
-P=0.00 | R=0.00 | F1=0.00 | ¿Cuántos intentos hace el cliente ante un TimeoutError y cuánto espera entre cada uno?
-P=0.00 | R=0.00 | F1=0.00 | ¿Qué ocurre cuando hay un error 401 o 403 de credenciales inválidas y cómo se soluciona?
-P=0.00 | R=0.00 | F1=0.00 | ¿Cuál es el límite de peticiones por minuto y qué pasa si se excede?
-P=0.00 | R=0.00 | F1=0.00 | ¿Cuántas unidades de crédito consumen las consultas de lectura y las de escritura?
+P=0.50 | R=1.00 | F1=0.67 | ¿Cuantos dias habiles de vacaciones anuales tengo y con cuanta anticipacion se solicitan?
+P=0.50 | R=1.00 | F1=0.67 | ¿Cual es el plazo para entregar una licencia medica y que hago ante un accidente de trayecto?
+P=0.50 | R=1.00 | F1=0.67 | ¿Que cubre el seguro complementario de salud y como solicito un reembolso?
+P=0.50 | R=1.00 | F1=0.67 | ¿Cuantos dias de permiso corresponden por matrimonio y como funciona la modalidad hibrida?
+P=0.50 | R=1.00 | F1=0.67 | ¿Cuando se pagan las remuneraciones y a que correo consulto por liquidaciones?
